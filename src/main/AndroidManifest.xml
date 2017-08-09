@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.arcsoft.sdk_demo"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- camera -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- sdcard -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- wifi internet -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:name="com.arcsoft.sdk_demo.Application"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+        <activity android:name="com.arcsoft.sdk_demo.PermissionAcitivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name="com.arcsoft.sdk_demo.RegisterActivity">
+        </activity>
+        <activity android:name="com.arcsoft.sdk_demo.DetecterActivity">
+        </activity>
+        <activity android:name="com.arcsoft.sdk_demo.MainActivity">
+        </activity>
+    </application>
+
+</manifest>
