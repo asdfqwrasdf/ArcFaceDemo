@@ -5,7 +5,8 @@ Free SDK demo
  1. 前往官网(http://www.arcsoft.com.cn/ai/arcface.html)申请appid和sdkkey
 修改 app\src\main\java\com\arcsoft\sdk_demo\FaceDB.java 下面的对应的值:
 
-    	public static String appid = "xxxx"; 		
+    	public static String appid = "xxxx"; 	
+     public static String ft_key = "xxxx"; 
     	public static String fd_key = "xxxx";    
    		public static String fr_key = "xxxx";
     
