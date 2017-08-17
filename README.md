@@ -22,6 +22,7 @@ Free SDK demo
 
  - [android_extend](https://github.com/gqjjqg/android-extend)
 
+---------------
 > FAQ
 
 1. Gradle 错误提示 Error:Failed to find target with hash string 'android-24'.......
