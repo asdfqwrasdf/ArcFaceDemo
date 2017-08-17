@@ -25,9 +25,13 @@ Free SDK demo
 > FAQ
 
 1. Gradle 错误提示 Error:Failed to find target with hash string 'android-24'.......
+	
 	一般Android Studio 窗口会有个链接(Install missing platform(s) and sync project)
+
 	点击下载更新 android-24 即可解决（其他版本没测试过，建议不要随意更改）。
 	
 2.  还有其他问题
+
 	直接提交[issue](https://github.com/asdfqwrasdf/ArcFaceDemo/issues) 
+	
 	我们会尽快解决
