@@ -20,7 +20,7 @@ Free SDK demo
 
 > demo使用哪些第三方库?
 
-　　[android_extend](https://github.com/gqjjqg/android-extend)
+    - [android_extend](https://github.com/gqjjqg/android-extend)
 
 > FAQ
 
