@@ -7,6 +7,7 @@ Free SDK demo
 
     	public static String appid = "xxxx"; 		
     	public static String fd_key = "xxxx";    
+    	public static String ft_key = "xxxx";
    		public static String fr_key = "xxxx";
     
 2. 下载sdk包，解压三个sdk包里libs中的文件到 本模块的[libs](https://github.com/asdfqwrasdf/ArcFaceDemo/tree/master/libs)下。
@@ -35,11 +36,13 @@ Free SDK demo
 	问题根源：首先要搞明白Android Studio的Project，一个AS只能开一个Project，一个Project下有多个Moudle。    
 	本demo是一个Module工程，不是一个Project工程，所以强行用Project的方式导入，会导致缺失Project的build.gradle，找不到gradle的classpath，也不会去jcenter下载依赖包，就会出现这个问题。    
 	
-	解决方法有两个：
-		a. 新建立一个Project，再import module，这是推荐的正确打开姿势。
-		b. 已经导入了不想重新删掉来过，那可以将错就错, 在Module的build.gradle中添加Project的build.gradle的内容即可解决:
+	解决方法有两个：   
+	
+	a. 新建立一个Project，再import module，这是推荐的正确打开姿势。    
+	b.  已经导入了不想重新删掉来过，那可以将错就错, 在Module的build.gradle中添加Project的build.gradle内容即可解决:
 		
 		// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
 		buildscript {
 			repositories {
 				jcenter()
@@ -51,6 +54,7 @@ Free SDK demo
 				// in the individual module build.gradle files
 			}
 		}
+
 		allprojects {
 			repositories {
 				jcenter()
