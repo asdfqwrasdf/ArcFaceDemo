@@ -4,8 +4,8 @@ Free SDK demo
 >如何使用？
  1. 使用git clone下载本demo源码
  
- 2. 前往[官网](http://www.arcsoft.com.cn/ai/arcface.html)申请appid和sdkkey    .
-    修改 ArcFaceDemo-master\src\main\java\com\arcsoft\sdk_demo\FaceDB.java 下面的对应的值:
+ 2. 前往[官网](http://www.arcsoft.com.cn/ai/arcface.html)申请appid和sdkkey.    
+修改 ArcFaceDemo-master\src\main\java\com\arcsoft\sdk_demo\FaceDB.java 下面的对应的值:
 
     	public static String appid = "xxxx"; 		
     	public static String fd_key = "xxxx";    
@@ -24,23 +24,24 @@ Free SDK demo
 > demo如何使用?
 
  1. 点击第一个按钮 打开图片或者拍一张带人脸的照片，确认后自动执行人脸，弹出注册框，注册第一个人脸。    
-    注册界面底部会展示已注册的信息列表，点击列表项，则可以执行删除操作    
+注册界面底部会展示已注册的信息列表，点击列表项，则可以执行删除操作    
     
  2. 点击第二个按钮 选择打开前置或者后置的镜头进行检测。
 
 ---------------
 > FAQ
 
-1. 如果下载的是zip包，会有编译上的问题
-    原因是 demo 依赖了一个子模块 [android_extend](https://github.com/gqjjqg/android-extend) 用来简化app开发，和ArcFace SDK无关。 
-    如果下载zip包，子模块代码不会自动拉取，所以需要手动拿一下代码。
+1. 编译通不过    
+    如果下载的是ZIP包，里面代码会不完整。    
+    原因是 demo 依赖了一个子模块 [android_extend](https://github.com/gqjjqg/android-extend) 用来简化app开发，和ArcFace SDK无关。    
+    如果下载zip包，子模块代码不会自动拉取，所以需要手动拿一下代码。    
     
-1. Gradle 错误提示 Error:Failed to find target with hash string 'android-24'.......
+2. Gradle 错误提示 Error:Failed to find target with hash string 'android-24'.......
 	
     一般Android Studio 窗口会有个链接(Install missing platform(s) and sync project)    
     点击下载更新 android-24 即可解决（其他版本没测试过，建议不要随意更改）。    
 	
-2.  还有其他问题
+3.  还有其他问题
 
     直接提交[issue](https://github.com/asdfqwrasdf/ArcFaceDemo/issues)     
     我们会尽快解决    
