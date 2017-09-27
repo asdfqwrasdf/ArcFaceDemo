@@ -1,0 +1,3 @@
+[submodule "android-extend"]
+	path = android-extend
+	url = git://github.com/gqjjqg/android-extend.git
