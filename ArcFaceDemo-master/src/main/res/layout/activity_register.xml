@@ -11,4 +11,14 @@
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <com.guo.android_extend.widget.HListView
+        android:id="@+id/hlistView"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:scrollbars="none"
+        app:dividerHeight="1dp"
+        app:listSelector="@android:drawable/list_selector_background"/>
 </RelativeLayout>

@@ -24,10 +24,10 @@ import java.util.List;
 public class FaceDB {
 	private final String TAG = this.getClass().toString();
 
-	public static String appid = "xxxx";
-	public static String ft_key = "xxxx";
-	public static String fd_key = "xxxx";
-	public static String fr_key = "xxxx";
+	public static String appid = "xxx";
+	public static String ft_key = "xxx";
+	public static String fd_key = "xxx";
+	public static String fr_key = "xxx";
 
 
 	String mDBPath;
@@ -95,7 +95,9 @@ public class FaceDB {
 			//load all regist name.
 			if (version_saved != null) {
 				for (String name = bos.readString(); name != null; name = bos.readString()){
-					mRegister.add(new FaceRegist(new String(name)));
+					if (new File(mDBPath + "/" + name + ".data").exists()) {
+						mRegister.add(new FaceRegist(new String(name)));
+					}
 				}
 			}
 			bos.close();
@@ -128,16 +130,13 @@ public class FaceDB {
 					} while (bos.readBytes(afr.getFeatureData()));
 					bos.close();
 					fs.close();
+					Log.d(TAG, "load name: size = " + face.mFaceList.size());
 				}
 				return true;
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
-		} else {
-			if (!saveInfo()) {
-				Log.e(TAG, "save fail!");
 			}
 		}
 		return false;
@@ -160,25 +159,23 @@ public class FaceDB {
 				mRegister.add(frface);
 			}
 
-			if (!new File(mDBPath + "/face.txt").exists()) {
-				if (!saveInfo()) {
-					Log.e(TAG, "save fail!");
+			if (saveInfo()) {
+				//update all names
+				FileOutputStream fs = new FileOutputStream(mDBPath + "/face.txt", true);
+				ExtOutputStream bos = new ExtOutputStream(fs);
+				for (FaceRegist frface : mRegister) {
+					bos.writeString(frface.mName);
 				}
+				bos.close();
+				fs.close();
+
+				//save new feature
+				fs = new FileOutputStream(mDBPath + "/" + name + ".data", true);
+				bos = new ExtOutputStream(fs);
+				bos.writeBytes(face.getFeatureData());
+				bos.close();
+				fs.close();
 			}
-
-			//save name
-			FileOutputStream fs = new FileOutputStream(mDBPath + "/face.txt", true);
-			ExtOutputStream bos = new ExtOutputStream(fs);
-			bos.writeString(name);
-			bos.close();
-			fs.close();
-
-			//save feature
-			fs = new FileOutputStream(mDBPath + "/" + name + ".data", true);
-			bos = new ExtOutputStream(fs);
-			bos.writeBytes(face.getFeatureData());
-			bos.close();
-			fs.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -186,8 +183,44 @@ public class FaceDB {
 		}
 	}
 
-	public boolean upgrade() {
+	public boolean delete(String name) {
+		try {
+			//check if already registered.
+			boolean find = false;
+			for (FaceRegist frface : mRegister) {
+				if (frface.mName.equals(name)) {
+					File delfile = new File(mDBPath + "/" + name + ".data");
+					if (delfile.exists()) {
+						delfile.delete();
+					}
+					mRegister.remove(frface);
+					find = true;
+					break;
+				}
+			}
+
+			if (find) {
+				if (saveInfo()) {
+					//update all names
+					FileOutputStream fs = new FileOutputStream(mDBPath + "/face.txt", true);
+					ExtOutputStream bos = new ExtOutputStream(fs);
+					for (FaceRegist frface : mRegister) {
+						bos.writeString(frface.mName);
+					}
+					bos.close();
+					fs.close();
+				}
+			}
+			return find;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return false;
 	}
 
+	public boolean upgrade() {
+		return false;
+	}
 }

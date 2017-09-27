@@ -53,6 +53,9 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 	AFT_FSDKEngine engine = new AFT_FSDKEngine();
 	List<AFT_FSDKFace> result = new ArrayList<>();
 
+	int mCameraID;
+	int mCameraRotate;
+	boolean mCameraMirror;
 	byte[] mImageNV21 = null;
 	FRAbsLoop mFRAbsLoop = null;
 	AFT_FSDKFace mAFT_FSDKFace = null;
@@ -128,7 +131,10 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 							mTextView1.setVisibility(View.VISIBLE);
 							mTextView1.setText("置信度：" + (float)((int)(max_score * 1000)) / 1000.0);
 							mTextView1.setTextColor(Color.RED);
-							mImageView.setRotation(90);
+							mImageView.setRotation(mCameraRotate);
+							if (mCameraMirror) {
+								mImageView.setScaleY(-1);
+							}
 							mImageView.setImageAlpha(255);
 							mImageView.setImageBitmap(bmp);
 						}
@@ -143,7 +149,10 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 							mTextView.setText(mNameShow);
 							mTextView.setTextColor(Color.RED);
 							mImageView.setImageAlpha(255);
-							mImageView.setRotation(90);
+							mImageView.setRotation(mCameraRotate);
+							if (mCameraMirror) {
+								mImageView.setScaleY(-1);
+							}
 							mImageView.setImageBitmap(bmp);
 						}
 					});
@@ -171,12 +180,21 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		this.setContentView(R.layout.activity_camera);
+
+		mCameraID = getIntent().getIntExtra("Camera", 0) == 0 ? Camera.CameraInfo.CAMERA_FACING_BACK : Camera.CameraInfo.CAMERA_FACING_FRONT;
+		mCameraRotate = getIntent().getIntExtra("Camera", 0) == 0 ? 90 : 270;
+		mCameraMirror = getIntent().getIntExtra("Camera", 0) == 0 ? false : true;
+		mWidth = 1280;
+		mHeight = 960;
+		mFormat = ImageFormat.NV21;
+		mHandler = new Handler();
+
+		setContentView(R.layout.activity_camera);
 		mGLSurfaceView = (CameraGLSurfaceView) findViewById(R.id.glsurfaceView);
 		mGLSurfaceView.setOnTouchListener(this);
 		mSurfaceView = (CameraSurfaceView) findViewById(R.id.surfaceView);
 		mSurfaceView.setOnCameraListener(this);
-		mSurfaceView.setupGLSurafceView(mGLSurfaceView, true, false, 90);
+		mSurfaceView.setupGLSurafceView(mGLSurfaceView, true, mCameraMirror, mCameraRotate);
 		mSurfaceView.debug_print_fps(true, false);
 
 		//snap
@@ -186,11 +204,6 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 		mTextView1.setText("");
 
 		mImageView = (ImageView) findViewById(R.id.imageView);
-
-		mHandler = new Handler();
-		mWidth = 1280;
-		mHeight = 960;
-		mFormat = ImageFormat.NV21;
 
 		AFT_FSDKError err = engine.AFT_FSDK_InitialFaceEngine(FaceDB.appid, FaceDB.ft_key, AFT_FSDKEngine.AFT_OPF_0_HIGHER_EXT, 16, 5);
 		Log.d(TAG, "AFT_FSDK_InitialFaceEngine =" + err.getCode());
@@ -216,7 +229,7 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 	@Override
 	public Camera setupCamera() {
 		// TODO Auto-generated method stub
-		mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+		mCamera = Camera.open(mCameraID);
 		try {
 			Camera.Parameters parameters = mCamera.getParameters();
 			parameters.setPreviewSize(mWidth, mHeight);
