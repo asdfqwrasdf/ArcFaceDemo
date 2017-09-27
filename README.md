@@ -32,9 +32,8 @@ Free SDK demo
 > FAQ
 
 1. 编译通不过    
-    如果下载的是ZIP包，里面代码会不完整。    
-    原因是 demo 依赖了一个子模块 [android_extend](https://github.com/gqjjqg/android-extend) 用来简化app开发，和ArcFace SDK无关。    
-    如果下载zip包，子模块代码不会自动拉取，所以需要手动拿一下代码。    
+   如果下载的是ZIP包，子模块[android_extend](https://github.com/gqjjqg/android-extend)代码不会自动拉取，所以需要手动拿一下代码。    
+   [android_extend](https://github.com/gqjjqg/android-extend)仅用来简化demo开发，和ArcFace SDK无关。      
 
 2. Gradle 错误提示 Error:Failed to find target with hash string 'android-24'.......
 	
