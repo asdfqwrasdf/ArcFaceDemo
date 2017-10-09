@@ -359,7 +359,7 @@ public class RegisterActivity extends Activity implements SurfaceHolder.Callback
 			new AlertDialog.Builder(RegisterActivity.this)
 					.setTitle("删除注册名:" + name)
 					.setMessage("包含:" + count + "个注册人脸特征信息")
-					.setIcon(android.R.drawable.ic_dialog_info)
+					.setIcon(android.R.drawable.ic_dialog_alert)
 					.setPositiveButton("确定", new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {

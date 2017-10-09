@@ -84,6 +84,9 @@ public class FaceDB {
 	}
 
 	private boolean loadInfo() {
+		if (!mRegister.isEmpty()) {
+			return false;
+		}
 		try {
 			FileInputStream fs = new FileInputStream(mDBPath + "/face.txt");
 			ExtInputStream bos = new ExtInputStream(fs);
