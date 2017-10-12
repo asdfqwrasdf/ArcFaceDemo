@@ -73,6 +73,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			String path = bundle.getString("imagePath");
 			Log.i(TAG, "path="+path);
 		} else if (requestCode == REQUEST_CODE_IMAGE_CAMERA && resultCode == RESULT_OK) {
+			mPath = ((Application)(MainActivity.this.getApplicationContext())).getCaptureImage();
 			String file = getPath(mPath);
 			Bitmap bmp = Application.decodeImage(file);
 			startRegister(bmp, file);
@@ -108,15 +109,13 @@ public class MainActivity extends Activity implements OnClickListener {
 							public void onClick(DialogInterface dialog, int which) {
 								switch (which){
 									case 1:
-										Intent getImageByCamera = new Intent(
-												"android.media.action.IMAGE_CAPTURE");
+										Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
 										ContentValues values = new ContentValues(1);
-
 										values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-										mPath = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-										getImageByCamera.putExtra(MediaStore.EXTRA_OUTPUT, mPath);
-
-										startActivityForResult(getImageByCamera, REQUEST_CODE_IMAGE_CAMERA);
+										Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+										((Application)(MainActivity.this.getApplicationContext())).setCaptureImage(uri);
+										intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+										startActivityForResult(intent, REQUEST_CODE_IMAGE_CAMERA);
 										break;
 									case 0:
 										Intent getImageByalbum = new Intent(Intent.ACTION_GET_CONTENT);
@@ -165,7 +164,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			}
 		}
 		String[] proj = { MediaStore.Images.Media.DATA };
-		Cursor actualimagecursor = managedQuery(uri, proj,null,null,null);
+		Cursor actualimagecursor = this.getContentResolver().query(uri, proj, null, null, null);
 		int actual_image_column_index = actualimagecursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 		actualimagecursor.moveToFirst();
 		String img_path = actualimagecursor.getString(actual_image_column_index);

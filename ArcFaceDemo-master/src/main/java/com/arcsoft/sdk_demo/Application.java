@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.util.Log;
 
 /**
@@ -13,11 +14,21 @@ import android.util.Log;
 public class Application extends android.app.Application {
 	private final String TAG = this.getClass().toString();
 	FaceDB mFaceDB;
+	Uri mImage;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		mFaceDB = new FaceDB(this.getExternalCacheDir().getPath());
+		mImage = null;
+	}
+
+	public void setCaptureImage(Uri uri) {
+		mImage = uri;
+	}
+
+	public Uri getCaptureImage() {
+		return mImage;
 	}
 
 	/**
