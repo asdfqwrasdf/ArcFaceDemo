@@ -140,27 +140,45 @@ public class MainActivity extends Activity implements OnClickListener {
 	private String getPath(Uri uri) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			if (DocumentsContract.isDocumentUri(this, uri)) {
-				final String docId = DocumentsContract.getDocumentId(uri);
-				final String[] split = docId.split(":");
-				final String type = split[0];
+				// ExternalStorageProvider
+				if (isExternalStorageDocument(uri)) {
+					final String docId = DocumentsContract.getDocumentId(uri);
+					final String[] split = docId.split(":");
+					final String type = split[0];
 
-				Uri contentUri = null;
-				if ("image".equals(type)) {
-					contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-				} else if ("video".equals(type)) {
-					contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-					return null;
-				} else if ("audio".equals(type)) {
-					contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-					return null;
+					if ("primary".equalsIgnoreCase(type)) {
+						return Environment.getExternalStorageDirectory() + "/" + split[1];
+					}
+
+					// TODO handle non-primary volumes
+				} else if (isDownloadsDocument(uri)) {
+
+					final String id = DocumentsContract.getDocumentId(uri);
+					final Uri contentUri = ContentUris.withAppendedId(
+							Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+					return getDataColumn(this, contentUri, null, null);
+				} else if (isMediaDocument(uri)) {
+					final String docId = DocumentsContract.getDocumentId(uri);
+					final String[] split = docId.split(":");
+					final String type = split[0];
+
+					Uri contentUri = null;
+					if ("image".equals(type)) {
+						contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+					} else if ("video".equals(type)) {
+						contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+					} else if ("audio".equals(type)) {
+						contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+					}
+
+					final String selection = "_id=?";
+					final String[] selectionArgs = new String[] {
+							split[1]
+					};
+
+					return getDataColumn(this, contentUri, selection, selectionArgs);
 				}
-
-				final String selection = "_id=?";
-				final String[] selectionArgs = new String[] {
-						split[1]
-				};
-
-				return getDataColumn(this, contentUri, selection, selectionArgs);
 			}
 		}
 		String[] proj = { MediaStore.Images.Media.DATA };
@@ -173,6 +191,30 @@ public class MainActivity extends Activity implements OnClickListener {
 			return null;
 		}
 		return img_path;
+	}
+
+	/**
+	 * @param uri The Uri to check.
+	 * @return Whether the Uri authority is ExternalStorageProvider.
+	 */
+	public static boolean isExternalStorageDocument(Uri uri) {
+		return "com.android.externalstorage.documents".equals(uri.getAuthority());
+	}
+
+	/**
+	 * @param uri The Uri to check.
+	 * @return Whether the Uri authority is DownloadsProvider.
+	 */
+	public static boolean isDownloadsDocument(Uri uri) {
+		return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+	}
+
+	/**
+	 * @param uri The Uri to check.
+	 * @return Whether the Uri authority is MediaProvider.
+	 */
+	public static boolean isMediaDocument(Uri uri) {
+		return "com.android.providers.media.documents".equals(uri.getAuthority());
 	}
 
 	/**
