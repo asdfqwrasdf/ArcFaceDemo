@@ -2,6 +2,7 @@ package com.arcsoft.sdk_demo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +12,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -24,8 +26,6 @@ public class MainActivity extends Activity implements OnClickListener {
 	private static final int REQUEST_CODE_IMAGE_CAMERA = 1;
 	private static final int REQUEST_CODE_IMAGE_OP = 2;
 	private static final int REQUEST_CODE_OP = 3;
-
-	private Uri mPath;
 
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -55,7 +55,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		if (requestCode == REQUEST_CODE_IMAGE_OP && resultCode == RESULT_OK) {
-			mPath = data.getData();
+			Uri mPath = data.getData();
 			String file = getPath(mPath);
 			Bitmap bmp = Application.decodeImage(file);
 			if (bmp == null || bmp.getWidth() <= 0 || bmp.getHeight() <= 0 ) {
@@ -73,7 +73,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			String path = bundle.getString("imagePath");
 			Log.i(TAG, "path="+path);
 		} else if (requestCode == REQUEST_CODE_IMAGE_CAMERA && resultCode == RESULT_OK) {
-			mPath = ((Application)(MainActivity.this.getApplicationContext())).getCaptureImage();
+			Uri mPath = ((Application)(MainActivity.this.getApplicationContext())).getCaptureImage();
 			String file = getPath(mPath);
 			Bitmap bmp = Application.decodeImage(file);
 			startRegister(bmp, file);
