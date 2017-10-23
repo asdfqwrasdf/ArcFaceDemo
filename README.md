@@ -33,7 +33,7 @@ Free SDK demo
 
 ---------------
 > FAQ
-1. 编译通不过    
+1. android_extend 空目录
    如果下载的是ZIP包，子模块[android_extend](https://github.com/gqjjqg/android-extend)代码不会自动拉取，所以需要手动拿一下代码。    	
 	```bash 
    	git submodule init
