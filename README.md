@@ -16,6 +16,9 @@ Free SDK demo
 
 4. Android Studio2.3.3 中直接打开或者导入Project,编译运行即可。
 
+> 子模块[android_extend](https://github.com/gqjjqg/android-extend)功能？
+
+　仅用来简化demo开发，例如简化camera调用，提供简单的工具方便demo开发。
 
 > 最低支持的API-LEVEL？
 
@@ -30,11 +33,13 @@ Free SDK demo
 
 ---------------
 > FAQ
-
 1. 编译通不过    
-   如果下载的是ZIP包，子模块[android_extend](https://github.com/gqjjqg/android-extend)代码不会自动拉取，所以需要手动拿一下代码。    
-   [android_extend](https://github.com/gqjjqg/android-extend)仅用来简化demo开发，和ArcFace SDK无关。      
-
+   如果下载的是ZIP包，子模块[android_extend](https://github.com/gqjjqg/android-extend)代码不会自动拉取，所以需要手动拿一下代码。    	
+	```bash 
+   	git submodule init
+   	git submodule update
+   	```
+   
 2. Gradle 错误提示 Error:Failed to find target with hash string 'android-24'.......
 	
     一般Android Studio 窗口会有个链接(Install missing platform(s) and sync project)    
