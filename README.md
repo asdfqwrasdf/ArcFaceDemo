@@ -2,9 +2,11 @@
 Free SDK demo
 
 >如何使用？
- 1. 下载代码: git clone --recursive https://github.com/asdfqwrasdf/ArcFaceDemo.git    
-
- 2. 前往[官网](http://www.arcsoft.com.cn/ai/arcface.html)申请appid和sdkkey.    
+ 1. 下载代码: git clone --recursive https://github.com/asdfqwrasdf/ArcFaceDemo.git
+ 
+　　(如采用zip包下载，则解压后还需前往下载 [android_extend](https://github.com/gqjjqg/android-extend)，并解压到本工程的android_extend目录下)    
+   
+ 2. 前往[官网](http://www.arcsoft.com.cn/ai/arcface.html)申请appid和sdkkey.    
 修改 ArcFaceDemo-master\src\main\java\com\arcsoft\sdk_demo\FaceDB.java 下面的对应的值:
 
     	public static String appid = "xxxx"; 		
@@ -16,9 +18,9 @@ Free SDK demo
 
 4. Android Studio2.3.3 中直接打开或者导入Project,编译运行即可。
 
-> 子模块[android_extend](https://github.com/gqjjqg/android-extend)功能？
+> [android_extend](https://github.com/gqjjqg/android-extend)？
 
-　仅用来简化demo开发，例如简化camera调用，提供简单的工具方便demo开发。
+　　此模块仅用来简化demo开发，例如简化camera调用，提供简单的工具方便demo开发。
 
 > 最低支持的API-LEVEL？
 
