@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.arcsoft.sdk_demo"
         minSdkVersion 19
@@ -23,8 +23,8 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(path: ':android-extend', configuration: 'release')
     compile files('libs/facedetection.jar')
     compile files('libs/facerecognition.jar')
     compile files('libs/facetracking.jar')
+    implementation project(':android-extend')
 }
