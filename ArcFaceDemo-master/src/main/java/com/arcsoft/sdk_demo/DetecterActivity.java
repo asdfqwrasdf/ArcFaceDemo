@@ -87,7 +87,9 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 		@Override
 		public void loop() {
 			if (mImageNV21 != null) {
+				long time = System.currentTimeMillis();
 				AFR_FSDKError error = engine.AFR_FSDK_ExtractFRFeature(mImageNV21, mWidth, mHeight, AFR_FSDKEngine.CP_PAF_NV21, mAFT_FSDKFace.getRect(), mAFT_FSDKFace.getDegree(), result);
+				Log.d(TAG, "AFR_FSDK_ExtractFRFeature cost :" + (System.currentTimeMillis() - time) + "ms");
 				Log.d(TAG, "Face=" + result.getFeatureData()[0] + "," + result.getFeatureData()[1] + "," + result.getFeatureData()[2] + "," + error.getCode());
 				AFR_FSDKMatching score = new AFR_FSDKMatching();
 				float max = 0.0f;

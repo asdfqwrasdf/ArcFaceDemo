@@ -1,1 +1,1 @@
-include ':ArcFaceDemo-master', ':android-extend'
+include ':ArcFaceDemo-master'
