@@ -14,7 +14,12 @@ Free SDK demo
     
 3. 下载sdk包之后，解压各个包里libs中的文件到 ArcFaceDemo-master\libs 下，同名so直接覆盖。
 
-4. Android Studio3.0 中直接打开或者导入Project,编译运行即可。
+4. Android Studio3.0 中直接打开或者导入Project,编译运行即可。    
+
+> demo中人脸数据的保存方式?    
+    以注册时人名为关键索引，保存在face.txt中。创建的 name.data 则为实际的数据保存文件。    
+    同一个名字可以多次注册，在name.data 中连续保存如下结构: {特征数据长度+特征数据信息}。    
+    目前版本占用的数据文件长度为 N * (4字节 + 22020字节)。    
 
 > com.guo.android_extend:android-extend
 
