@@ -13,8 +13,7 @@ Free SDK demo
     public static String fd_key = "xxxx";    
     public static String ft_key = "xxxx";
     public static String fr_key = "xxxx";
-    ```    
-        
+    ```
 3. 下载sdk包之后，解压各个包里libs中的文件到 ArcFaceDemo-master\libs 下，同名so直接覆盖。
 
 4. Android Studio3.0 中直接打开或者导入Project,编译运行即可。    
