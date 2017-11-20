@@ -46,7 +46,10 @@ Free SDK demo
     一般Android Studio 窗口会有个链接(Install missing platform(s) and sync project)    
     点击下载更新 android-24 即可解决（其他版本没测试过，建议不要随意更改）。    
 	
-2.  还有其他问题
+2. 加载图片注册时Crash.    
+    NV21格式限制高度不能为奇数，宽度可以随意，demo没有对这个做保护，请自行注意加载注册的图片尺寸。
+
+3. 还有其他问题
 
     直接提交[issue](https://github.com/asdfqwrasdf/ArcFaceDemo/issues)     
     我们会尽快解决    
