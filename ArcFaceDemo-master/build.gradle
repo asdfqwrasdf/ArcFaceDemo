@@ -26,5 +26,7 @@ dependencies {
     compile files('libs/facedetection.jar')
     compile files('libs/facerecognition.jar')
     compile files('libs/facetracking.jar')
+    compile files('libs/ageestimation.jar')
+    compile files('libs/genderestimation.jar')
     compile 'com.guo.android_extend:android-extend:1.0.1'
 }
