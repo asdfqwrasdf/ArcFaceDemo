@@ -28,7 +28,8 @@ public class FaceDB {
 	public static String ft_key = "xxx";
 	public static String fd_key = "xxx";
 	public static String fr_key = "xxx";
-
+	public static String age_key = "xxx";
+	public static String gender_key = "xxx";
 
 	String mDBPath;
 	List<FaceRegist> mRegister;
