@@ -38,7 +38,11 @@ Free SDK demo
 注册界面底部会展示已注册的信息列表，点击列表项，则可以执行删除操作    
     
  2. 点击第二个按钮 选择打开前置或者后置的镜头进行检测。
+ 
+> 没看到年龄和性别检测结果?    
 
+　　demo在预览中调用了video接口，直接logcat中输出了检测结果，UI上没有显示。    
+  
 ---------------
 > FAQ
 1. Gradle 错误提示 Error:Failed to find target with hash string 'android-24'.......
