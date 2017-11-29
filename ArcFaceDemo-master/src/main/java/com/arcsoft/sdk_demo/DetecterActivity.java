@@ -91,7 +91,9 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 		AFR_FSDKEngine engine = new AFR_FSDKEngine();
 		AFR_FSDKFace result = new AFR_FSDKFace();
 		List<FaceDB.FaceRegist> mResgist = ((Application)DetecterActivity.this.getApplicationContext()).mFaceDB.mRegister;
-
+		List<ASAE_FSDKFace> face1 = new ArrayList<>();
+		List<ASGE_FSDKFace> face2 = new ArrayList<>();
+		
 		@Override
 		public void setup() {
 			AFR_FSDKError error = engine.AFR_FSDK_InitialEngine(FaceDB.appid, FaceDB.fr_key);
@@ -121,6 +123,18 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 					}
 				}
 
+				//age & gender
+				face1.clear();
+				face2.clear();
+				face1.add(new ASAE_FSDKFace(mAFT_FSDKFace.getRect(), mAFT_FSDKFace.getDegree()));
+				face2.add(new ASGE_FSDKFace(mAFT_FSDKFace.getRect(), mAFT_FSDKFace.getDegree()));
+				ASAE_FSDKError error1 = mAgeEngine.ASAE_FSDK_AgeEstimation_Image(mImageNV21, mWidth, mHeight, AFT_FSDKEngine.CP_PAF_NV21, face1, ages);
+				ASGE_FSDKError error2 = mGenderEngine.ASGE_FSDK_GenderEstimation_Image(mImageNV21, mWidth, mHeight, AFT_FSDKEngine.CP_PAF_NV21, face2, genders);
+				Log.d(TAG, "ASAE_FSDK_AgeEstimation_Image:" + error1.getCode() + ",ASGE_FSDK_GenderEstimation_Image:" + error2.getCode());
+				Log.d(TAG, "age:" + ages.get(0).getAge() + ",gender:" + genders.get(0).getGender());
+				final String age = ages.get(0).getAge() == 0 ? "年龄未知" : ages.get(0).getAge() + "岁";
+				final String gender = genders.get(0).getGender() == -1 ? "性别未知" : (genders.get(0).getGender() == 0 ? "男" : "女");
+				
 				//crop
 				byte[] data = mImageNV21;
 				YuvImage yuv = new YuvImage(data, ImageFormat.NV21, mWidth, mHeight, null);
@@ -163,7 +177,9 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 						@Override
 						public void run() {
 							mTextView.setAlpha(1.0f);
-							mTextView1.setVisibility(View.INVISIBLE);
+							mTextView1.setVisibility(View.VISIBLE);
+							mTextView1.setText( gender + "," + age);
+							mTextView1.setTextColor(Color.RED);
 							mTextView.setText(mNameShow);
 							mTextView.setTextColor(Color.RED);
 							mImageView.setImageAlpha(255);
@@ -317,16 +333,8 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 		AFT_FSDKError err = engine.AFT_FSDK_FaceFeatureDetect(data, width, height, AFT_FSDKEngine.CP_PAF_NV21, result);
 		Log.d(TAG, "AFT_FSDK_FaceFeatureDetect =" + err.getCode());
 		Log.d(TAG, "Face=" + result.size());
-		List<ASAE_FSDKFace> face1 = new ArrayList<>();
-		List<ASGE_FSDKFace> face2 = new ArrayList<>();
 		for (AFT_FSDKFace face : result) {
-			face1.add(new ASAE_FSDKFace(face.getRect(), face.getDegree()));
-			face2.add(new ASGE_FSDKFace(face.getRect(), face.getDegree()));
-			mAgeEngine.ASAE_FSDK_AgeEstimation_Video(data, width, height, AFT_FSDKEngine.CP_PAF_NV21, face1, ages);
-			mGenderEngine.ASGE_FSDK_GenderEstimation_Video(data, width, height, AFT_FSDKEngine.CP_PAF_NV21, face2, genders);
-			face1.clear();
-			face2.clear();
-			Log.d(TAG, "Face:" + face.toString() + ",age:" + ages.get(0).getAge() + ",gender:" + genders.get(0).getGender());
+			Log.d(TAG, "Face:" + face.toString());
 		}
 		if (mImageNV21 == null) {
 			if (!result.isEmpty()) {
