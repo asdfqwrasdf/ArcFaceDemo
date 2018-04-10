@@ -34,7 +34,18 @@ Free SDK demo
 > 最低支持的API-LEVEL?  
 
 　14-27    　
-
+ 
+---------------
+> Issue Report
+1. before report    
+    please check the closed issues.    
+  
+2. issue format    
+    a.错误信息:log，input image，core stack, etc...    
+    b.设备信息:cpu, memory, device name, etc...    
+    c.系统版本:OS version, API leve,etc...    
+    d.具体操作流程:which step,how to recurrence,etc...    
+  
 ---------------
 > FAQ
 1. Gradle 错误提示 Error:Failed to find target with hash string 'android-24'.......    
@@ -50,8 +61,8 @@ Free SDK demo
 4. com.guo.android_extend:android-extend 找不到依赖.    
  此第三方库[android_extend](https://github.com/gqjjqg/android-extend) 用来简化camera调用，提供简单的工具方便demo开发。 
  一般android studio会自动从jcenter 下载对应的aar包，如果没有自动下载，请自行检查是否网络问题，或者删掉build等编译目录，重新运行gradle.
-    
-4. 还有其他问题.    
+    
+5. 还有其他问题.    
  直接提交[issue](https://github.com/asdfqwrasdf/ArcFaceDemo/issues)     
  我们会尽快解决    
 	
