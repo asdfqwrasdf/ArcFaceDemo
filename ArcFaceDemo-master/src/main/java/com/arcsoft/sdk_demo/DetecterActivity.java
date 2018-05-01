@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -51,7 +52,7 @@ import java.util.List;
  * Created by gqj3375 on 2017/4/28.
  */
 
-public class DetecterActivity extends Activity implements OnCameraListener, View.OnTouchListener, Camera.AutoFocusCallback {
+public class DetecterActivity extends Activity implements OnCameraListener, View.OnTouchListener, Camera.AutoFocusCallback, View.OnClickListener {
 	private final String TAG = this.getClass().getSimpleName();
 
 	private int mWidth, mHeight, mFormat;
@@ -76,12 +77,14 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 	FRAbsLoop mFRAbsLoop = null;
 	AFT_FSDKFace mAFT_FSDKFace = null;
 	Handler mHandler;
+	boolean isPostted = false;
 
 	Runnable hide = new Runnable() {
 		@Override
 		public void run() {
 			mTextView.setAlpha(0.5f);
 			mImageView.setImageAlpha(128);
+			isPostted = false;
 		}
 	};
 
@@ -105,6 +108,8 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 		@Override
 		public void loop() {
 			if (mImageNV21 != null) {
+				final int rotate = mCameraRotate;
+
 				long time = System.currentTimeMillis();
 				AFR_FSDKError error = engine.AFR_FSDK_ExtractFRFeature(mImageNV21, mWidth, mHeight, AFR_FSDKEngine.CP_PAF_NV21, mAFT_FSDKFace.getRect(), mAFT_FSDKFace.getDegree(), result);
 				Log.d(TAG, "AFR_FSDK_ExtractFRFeature cost :" + (System.currentTimeMillis() - time) + "ms");
@@ -156,14 +161,13 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 					mHandler.post(new Runnable() {
 						@Override
 						public void run() {
-
 							mTextView.setAlpha(1.0f);
 							mTextView.setText(mNameShow);
 							mTextView.setTextColor(Color.RED);
 							mTextView1.setVisibility(View.VISIBLE);
 							mTextView1.setText("置信度：" + (float)((int)(max_score * 1000)) / 1000.0);
 							mTextView1.setTextColor(Color.RED);
-							mImageView.setRotation(mCameraRotate);
+							mImageView.setRotation(rotate);
 							if (mCameraMirror) {
 								mImageView.setScaleY(-1);
 							}
@@ -183,7 +187,7 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 							mTextView.setText(mNameShow);
 							mTextView.setTextColor(Color.RED);
 							mImageView.setImageAlpha(255);
-							mImageView.setRotation(mCameraRotate);
+							mImageView.setRotation(rotate);
 							if (mCameraMirror) {
 								mImageView.setScaleY(-1);
 							}
@@ -206,6 +210,7 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 	private TextView mTextView;
 	private TextView mTextView1;
 	private ImageView mImageView;
+	private ImageButton mImageButton;
 
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -238,6 +243,8 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 		mTextView1.setText("");
 
 		mImageView = (ImageView) findViewById(R.id.imageView);
+		mImageButton = (ImageButton) findViewById(R.id.imageButton);
+		mImageButton.setOnClickListener(this);
 
 		AFT_FSDKError err = engine.AFT_FSDK_InitialFaceEngine(FaceDB.appid, FaceDB.ft_key, AFT_FSDKEngine.AFT_OPF_0_HIGHER_EXT, 16, 5);
 		Log.d(TAG, "AFT_FSDK_InitialFaceEngine =" + err.getCode());
@@ -323,9 +330,8 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 	}
 
 	@Override
-	public boolean startPreviewLater() {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean startPreviewImmediately() {
+		return true;
 	}
 
 	@Override
@@ -341,7 +347,11 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 				mAFT_FSDKFace = result.get(0).clone();
 				mImageNV21 = data.clone();
 			} else {
-				mHandler.postDelayed(hide, 3000);
+				if (!isPostted) {
+					mHandler.removeCallbacks(hide);
+					mHandler.postDelayed(hide, 2000);
+					isPostted = true;
+				}
 			}
 		}
 		//copy rects
@@ -377,4 +387,22 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 			Log.d(TAG, "Camera Focus SUCCESS!");
 		}
 	}
+
+	@Override
+	public void onClick(View view) {
+		if (view.getId() == R.id.imageButton) {
+			if (mCameraID == Camera.CameraInfo.CAMERA_FACING_BACK) {
+				mCameraID = Camera.CameraInfo.CAMERA_FACING_FRONT;
+				mCameraRotate = 270;
+				mCameraMirror = true;
+			} else {
+				mCameraID = Camera.CameraInfo.CAMERA_FACING_BACK;
+				mCameraRotate = 90;
+				mCameraMirror = false;
+			}
+			mSurfaceView.resetCamera();
+			mGLSurfaceView.getGLES2Render().setViewAngle(mCameraMirror, mCameraRotate);
+		}
+	}
+
 }
