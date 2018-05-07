@@ -401,6 +401,7 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 				mCameraMirror = false;
 			}
 			mSurfaceView.resetCamera();
+			mGLSurfaceView.setRenderConfig(mCameraRotate, mCameraMirror);
 			mGLSurfaceView.getGLES2Render().setViewAngle(mCameraMirror, mCameraRotate);
 		}
 	}
