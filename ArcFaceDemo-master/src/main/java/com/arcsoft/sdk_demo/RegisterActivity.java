@@ -100,12 +100,16 @@ public class RegisterActivity extends Activity implements SurfaceHolder.Callback
 				}
 
 				byte[] data = new byte[mBitmap.getWidth() * mBitmap.getHeight() * 3 / 2];
-				ImageConverter convert = new ImageConverter();
-				convert.initial(mBitmap.getWidth(), mBitmap.getHeight(), ImageConverter.CP_PAF_NV21);
-				if (convert.convert(mBitmap, data)) {
-					Log.d(TAG, "convert ok!");
+				try {
+					ImageConverter convert = new ImageConverter();
+					convert.initial(mBitmap.getWidth(), mBitmap.getHeight(), ImageConverter.CP_PAF_NV21);
+					if (convert.convert(mBitmap, data)) {
+						Log.d(TAG, "convert ok!");
+					}
+					convert.destroy();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				convert.destroy();
 
 				AFD_FSDKEngine engine = new AFD_FSDKEngine();
 				AFD_FSDKVersion version = new AFD_FSDKVersion();
