@@ -51,6 +51,7 @@ public class RegisterActivity extends Activity implements SurfaceHolder.Callback
 	private final static int MSG_EVENT_NO_FEATURE = 0x1003;
 	private final static int MSG_EVENT_FD_ERROR = 0x1004;
 	private final static int MSG_EVENT_FR_ERROR = 0x1005;
+	private final static int MSG_EVENT_IMG_ERROR = 0x1006;
 	private UIHandler mUIHandler;
 	// Intent data.
 	private String 		mFilePath;
@@ -109,6 +110,11 @@ public class RegisterActivity extends Activity implements SurfaceHolder.Callback
 					convert.destroy();
 				} catch (Exception e) {
 					e.printStackTrace();
+					Message reg = Message.obtain();
+					reg.what = MSG_CODE;
+					reg.arg1 = MSG_EVENT_IMG_ERROR;
+					reg.obj = e.getMessage();
+					mUIHandler.sendMessage(reg);
 				}
 
 				AFD_FSDKEngine engine = new AFD_FSDKEngine();
@@ -293,6 +299,8 @@ public class RegisterActivity extends Activity implements SurfaceHolder.Callback
 					Toast.makeText(RegisterActivity.this, "FD初始化失败，错误码：" + msg.arg2, Toast.LENGTH_SHORT).show();
 				} else if(msg.arg1 == MSG_EVENT_FR_ERROR){
 					Toast.makeText(RegisterActivity.this, "FR初始化失败，错误码：" + msg.arg2, Toast.LENGTH_SHORT).show();
+				} else if(msg.arg1 == MSG_EVENT_IMG_ERROR){
+					Toast.makeText(RegisterActivity.this, "图像格式错误，：" + msg.obj, Toast.LENGTH_SHORT).show();
 				}
 			}
 		}
