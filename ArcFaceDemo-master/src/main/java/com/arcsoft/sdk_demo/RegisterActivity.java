@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -21,6 +23,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,9 +40,11 @@ import com.arcsoft.facerecognition.AFR_FSDKVersion;
 import com.guo.android_extend.image.ImageConverter;
 import com.guo.android_extend.widget.ExtImageView;
 import com.guo.android_extend.widget.HListView;
+import com.guo.android_extend.widget.controller.ImageController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by gqj3375 on 2017/4/27.
@@ -279,7 +286,7 @@ public class RegisterActivity extends Activity implements SurfaceHolder.Callback
 							.setPositiveButton("确定", new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
-									((Application)RegisterActivity.this.getApplicationContext()).mFaceDB.addFace(mEditText.getText().toString(), mAFR_FSDKFace);
+									((Application)RegisterActivity.this.getApplicationContext()).mFaceDB.addFace(mEditText.getText().toString(), mAFR_FSDKFace, face);
 									mRegisterViewAdapter.notifyDataSetChanged();
 									dialog.dismiss();
 								}
@@ -356,6 +363,9 @@ public class RegisterActivity extends Activity implements SurfaceHolder.Callback
 			if (!((Application)mContext.getApplicationContext()).mFaceDB.mRegister.isEmpty()) {
 				FaceDB.FaceRegist face = ((Application) mContext.getApplicationContext()).mFaceDB.mRegister.get(position);
 				holder.tv.setText(face.mName);
+				String keyPath = face.mFaceList.keySet().iterator().next();
+                holder.siv.setImageBitmap(BitmapFactory.decodeFile(keyPath));
+				holder.siv.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				//holder.siv.setImageResource(R.mipmap.ic_launcher);
 				convertView.setWillNotDraw(false);
 			}
@@ -368,9 +378,11 @@ public class RegisterActivity extends Activity implements SurfaceHolder.Callback
 			Log.d("onItemClick", "onItemClick = " + position + "pos=" + mHListView.getScroll());
 			final String name = ((Application)mContext.getApplicationContext()).mFaceDB.mRegister.get(position).mName;
 			final int count = ((Application)mContext.getApplicationContext()).mFaceDB.mRegister.get(position).mFaceList.size();
+			final Map<String, AFR_FSDKFace> face = ((Application)mContext.getApplicationContext()).mFaceDB.mRegister.get(position).mFaceList;
 			new AlertDialog.Builder(RegisterActivity.this)
 					.setTitle("删除注册名:" + name)
 					.setMessage("包含:" + count + "个注册人脸特征信息")
+					.setView(new ListView(mContext))
 					.setIcon(android.R.drawable.ic_dialog_alert)
 					.setPositiveButton("确定", new DialogInterface.OnClickListener() {
 						@Override

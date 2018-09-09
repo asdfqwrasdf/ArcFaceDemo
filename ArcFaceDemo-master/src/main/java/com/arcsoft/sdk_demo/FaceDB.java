@@ -1,5 +1,7 @@
 package com.arcsoft.sdk_demo;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.arcsoft.facerecognition.AFR_FSDKEngine;
@@ -14,8 +16,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by gqj3375 on 2017/7/11.
@@ -39,11 +44,11 @@ public class FaceDB {
 
 	class FaceRegist {
 		String mName;
-		List<AFR_FSDKFace> mFaceList;
+		Map<String, AFR_FSDKFace> mFaceList;
 
 		public FaceRegist(String name) {
 			mName = name;
-			mFaceList = new ArrayList<>();
+			mFaceList = new LinkedHashMap<>();
 		}
 	}
 
@@ -128,7 +133,8 @@ public class FaceDB {
 							if (mUpgrade) {
 								//upgrade data.
 							}
-							face.mFaceList.add(afr);
+							String keyFile = bos.readString();
+							face.mFaceList.put(keyFile, afr);
 						}
 						afr = new AFR_FSDKFace();
 					} while (bos.readBytes(afr.getFeatureData()));
@@ -146,20 +152,29 @@ public class FaceDB {
 		return false;
 	}
 
-	public	void addFace(String name, AFR_FSDKFace face) {
+	public	void addFace(String name, AFR_FSDKFace face, Bitmap faceicon) {
 		try {
+			// save face
+			String keyPath = mDBPath + "/" + System.nanoTime() + ".jpg";
+			File keyFile = new File(keyPath);
+			OutputStream stream = new FileOutputStream(keyFile);
+			if (faceicon.compress(Bitmap.CompressFormat.JPEG, 80, stream)) {
+				Log.d(TAG, "saved face bitmap to jpg!");
+			}
+			stream.close();
+
 			//check if already registered.
 			boolean add = true;
 			for (FaceRegist frface : mRegister) {
 				if (frface.mName.equals(name)) {
-					frface.mFaceList.add(face);
+					frface.mFaceList.put(keyPath, face);
 					add = false;
 					break;
 				}
 			}
 			if (add) { // not registered.
 				FaceRegist frface = new FaceRegist(name);
-				frface.mFaceList.add(face);
+				frface.mFaceList.put(keyPath, face);
 				mRegister.add(frface);
 			}
 
@@ -177,6 +192,7 @@ public class FaceDB {
 				fs = new FileOutputStream(mDBPath + "/" + name + ".data", true);
 				bos = new ExtOutputStream(fs);
 				bos.writeBytes(face.getFeatureData());
+				bos.writeString(keyPath);
 				bos.close();
 				fs.close();
 			}
