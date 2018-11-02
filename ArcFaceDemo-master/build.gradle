@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.arcsoft.sdk_demo"
         minSdkVersion 21
@@ -28,5 +28,5 @@ dependencies {
     implementation files('libs/facetracking.jar')
     implementation files('libs/ageestimation.jar')
     implementation files('libs/genderestimation.jar')
-    implementation 'com.guo.android_extend:android-extend:1.0.5'
+    implementation 'com.guo.android_extend:android-extend:1.0.6'
 }

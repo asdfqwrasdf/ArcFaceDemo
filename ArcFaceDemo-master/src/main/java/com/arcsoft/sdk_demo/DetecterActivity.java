@@ -36,6 +36,7 @@ import com.arcsoft.genderestimation.ASGE_FSDKError;
 import com.arcsoft.genderestimation.ASGE_FSDKFace;
 import com.arcsoft.genderestimation.ASGE_FSDKGender;
 import com.arcsoft.genderestimation.ASGE_FSDKVersion;
+import com.guo.android_extend.GLES2Render;
 import com.guo.android_extend.java.AbsLoop;
 import com.guo.android_extend.java.ExtByteArrayOutputStream;
 import com.guo.android_extend.tools.CameraHelper;
@@ -72,7 +73,7 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 
 	int mCameraID;
 	int mCameraRotate;
-	boolean mCameraMirror;
+	int mCameraMirror;
 	byte[] mImageNV21 = null;
 	FRAbsLoop mFRAbsLoop = null;
 	AFT_FSDKFace mAFT_FSDKFace = null;
@@ -168,9 +169,7 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 							mTextView1.setText("置信度：" + (float)((int)(max_score * 1000)) / 1000.0);
 							mTextView1.setTextColor(Color.RED);
 							mImageView.setRotation(rotate);
-							if (mCameraMirror) {
-								mImageView.setScaleY(-1);
-							}
+							mImageView.setScaleY(-mCameraMirror);
 							mImageView.setImageAlpha(255);
 							mImageView.setImageBitmap(bmp);
 						}
@@ -188,9 +187,7 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 							mTextView.setTextColor(Color.RED);
 							mImageView.setImageAlpha(255);
 							mImageView.setRotation(rotate);
-							if (mCameraMirror) {
-								mImageView.setScaleY(-1);
-							}
+							mImageView.setScaleY(-mCameraMirror);
 							mImageView.setImageBitmap(bmp);
 						}
 					});
@@ -222,7 +219,7 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 
 		mCameraID = getIntent().getIntExtra("Camera", 0) == 0 ? Camera.CameraInfo.CAMERA_FACING_BACK : Camera.CameraInfo.CAMERA_FACING_FRONT;
 		mCameraRotate = getIntent().getIntExtra("Camera", 0) == 0 ? 90 : 270;
-		mCameraMirror = getIntent().getIntExtra("Camera", 0) == 0 ? false : true;
+		mCameraMirror = getIntent().getIntExtra("Camera", 0) == 0 ? GLES2Render.MIRROR_NONE : GLES2Render.MIRROR_X;
 		mWidth = 1280;
 		mHeight = 960;
 		mFormat = ImageFormat.NV21;
@@ -394,15 +391,15 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 			if (mCameraID == Camera.CameraInfo.CAMERA_FACING_BACK) {
 				mCameraID = Camera.CameraInfo.CAMERA_FACING_FRONT;
 				mCameraRotate = 270;
-				mCameraMirror = true;
+				mCameraMirror = GLES2Render.MIRROR_X;
 			} else {
 				mCameraID = Camera.CameraInfo.CAMERA_FACING_BACK;
 				mCameraRotate = 90;
-				mCameraMirror = false;
+				mCameraMirror = GLES2Render.MIRROR_NONE;
 			}
 			mSurfaceView.resetCamera();
 			mGLSurfaceView.setRenderConfig(mCameraRotate, mCameraMirror);
-			mGLSurfaceView.getGLES2Render().setViewAngle(mCameraMirror, mCameraRotate);
+			mGLSurfaceView.getGLES2Render().setViewDisplay(mCameraMirror, mCameraRotate);
 		}
 	}
 
