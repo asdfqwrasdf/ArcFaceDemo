@@ -1,13 +1,13 @@
 package com.arcsoft.sdk_demo;
 
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.arcsoft.facerecognition.AFR_FSDKEngine;
-import com.arcsoft.facerecognition.AFR_FSDKError;
-import com.arcsoft.facerecognition.AFR_FSDKFace;
-import com.arcsoft.facerecognition.AFR_FSDKVersion;
+import com.arcsoft.face.ErrorInfo;
+import com.arcsoft.face.FaceEngine;
+import com.arcsoft.face.FaceFeature;
+import com.arcsoft.face.VersionInfo;
 import com.guo.android_extend.java.ExtInputStream;
 import com.guo.android_extend.java.ExtOutputStream;
 
@@ -29,22 +29,18 @@ import java.util.Map;
 public class FaceDB {
 	private final String TAG = this.getClass().toString();
 
-	public static String appid = "xxx";
-	public static String ft_key = "xxx";
-	public static String fd_key = "xxx";
-	public static String fr_key = "xxx";
-	public static String age_key = "xxx";
-	public static String gender_key = "xxx";
+	public static String appid = "7gmAxzu82nrqgviDUnQKSbcQkMmgJeU57gh137fFhcyQ";
+	public static String sdk_key = "AhC7DUp2KHLS9rNhUZ8GVBLJ9UqC3q8oBAsYsPgkNqRt";
 
 	String mDBPath;
 	List<FaceRegist> mRegister;
-	AFR_FSDKEngine mFREngine;
-	AFR_FSDKVersion mFRVersion;
+	FaceEngine mFaceEngine;
+	VersionInfo mFRVersion;
 	boolean mUpgrade;
 
 	class FaceRegist {
 		String mName;
-		Map<String, AFR_FSDKFace> mFaceList;
+		Map<String, FaceFeature> mFaceList;
 
 		public FaceRegist(String name) {
 			mName = name;
@@ -52,24 +48,26 @@ public class FaceDB {
 		}
 	}
 
-	public FaceDB(String path) {
+	public FaceDB(Context context, String path) {
 		mDBPath = path;
 		mRegister = new ArrayList<>();
-		mFRVersion = new AFR_FSDKVersion();
+		mFRVersion = new VersionInfo();
 		mUpgrade = false;
-		mFREngine = new AFR_FSDKEngine();
-		AFR_FSDKError error = mFREngine.AFR_FSDK_InitialEngine(FaceDB.appid, FaceDB.fr_key);
-		if (error.getCode() != AFR_FSDKError.MOK) {
-			Log.e(TAG, "AFR_FSDK_InitialEngine fail! error code :" + error.getCode());
+		mFaceEngine = new FaceEngine();
+		int error = mFaceEngine.active(context, FaceDB.appid, FaceDB.sdk_key);
+		Log.e(TAG, "active code :" + error);
+		error = mFaceEngine.init(context, FaceEngine.ASF_DETECT_MODE_IMAGE, FaceEngine.ASF_OP_0_HIGHER_EXT, 16, 1, FaceEngine.ASF_FACE_RECOGNITION);
+		if (error != ErrorInfo.MOK) {
+			Log.e(TAG, "init fail! error code :" + error);
 		} else {
-			mFREngine.AFR_FSDK_GetVersion(mFRVersion);
-			Log.d(TAG, "AFR_FSDK_GetVersion=" + mFRVersion.toString());
+			mFaceEngine.getVersion(mFRVersion);
+			Log.d(TAG, "getVersion=" + mFRVersion.toString());
 		}
 	}
 
 	public void destroy() {
-		if (mFREngine != null) {
-			mFREngine.AFR_FSDK_UninitialEngine();
+		if (mFaceEngine != null) {
+			mFaceEngine.unInit();
 		}
 	}
 
@@ -77,7 +75,7 @@ public class FaceDB {
 		try {
 			FileOutputStream fs = new FileOutputStream(mDBPath + "/face.txt");
 			ExtOutputStream bos = new ExtOutputStream(fs);
-			bos.writeString(mFRVersion.toString() + "," + mFRVersion.getFeatureLevel());
+			bos.writeString(mFRVersion.toString());
 			bos.close();
 			fs.close();
 			return true;
@@ -98,7 +96,7 @@ public class FaceDB {
 			ExtInputStream bos = new ExtInputStream(fs);
 			//load version
 			String version_saved = bos.readString();
-			if (version_saved.equals(mFRVersion.toString() + "," + mFRVersion.getFeatureLevel())) {
+			if (version_saved.equals(mFRVersion.toString())) {
 				mUpgrade = true;
 			}
 			//load all regist name.
@@ -127,7 +125,7 @@ public class FaceDB {
 					Log.d(TAG, "load name:" + face.mName + "'s face feature data.");
 					FileInputStream fs = new FileInputStream(mDBPath + "/" + face.mName + ".data");
 					ExtInputStream bos = new ExtInputStream(fs);
-					AFR_FSDKFace afr = null;
+					FaceFeature afr = null;
 					do {
 						if (afr != null) {
 							if (mUpgrade) {
@@ -136,7 +134,7 @@ public class FaceDB {
 							String keyFile = bos.readString();
 							face.mFaceList.put(keyFile, afr);
 						}
-						afr = new AFR_FSDKFace();
+						afr = new FaceFeature();
 					} while (bos.readBytes(afr.getFeatureData()));
 					bos.close();
 					fs.close();
@@ -152,7 +150,7 @@ public class FaceDB {
 		return false;
 	}
 
-	public	void addFace(String name, AFR_FSDKFace face, Bitmap faceicon) {
+	public	void addFace(String name, FaceFeature face, Bitmap faceicon) {
 		try {
 			// save face
 			String keyPath = mDBPath + "/" + System.nanoTime() + ".jpg";
@@ -242,5 +240,9 @@ public class FaceDB {
 
 	public boolean upgrade() {
 		return false;
+	}
+
+	public FaceEngine getFaceEngine() {
+		return mFaceEngine;
 	}
 }

@@ -1,6 +1,5 @@
 package com.arcsoft.sdk_demo;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -15,12 +14,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends AppCompatActivity implements OnClickListener {
 	private final String TAG = this.getClass().toString();
 
 	private static final int REQUEST_CODE_IMAGE_CAMERA = 1;

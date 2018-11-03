@@ -1,13 +1,13 @@
 package com.arcsoft.sdk_demo;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Process;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -17,13 +17,14 @@ import java.util.List;
  * Created by gqj3375 on 2017/2/24.
  */
 
-public class PermissionAcitivity extends Activity {
-	public static int PERMISSION_REQ = 0x123456;
+public class PermissionAcitivity extends AppCompatActivity {
+	public static int PERMISSION_REQ = 65000;
 
 	private String[] mPermission = new String[] {
 			Manifest.permission.INTERNET,
 			Manifest.permission.CAMERA,
-			Manifest.permission.WRITE_EXTERNAL_STORAGE
+			Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_PHONE_STATE
 	};
 
 	private List<String> mRequestPermission = new ArrayList<String>();
@@ -82,11 +83,13 @@ public class PermissionAcitivity extends Activity {
 			mProgressDialog.setTitle("loading register data...");
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
+			final FaceDB mFaceDB = new FaceDB(this, this.getExternalCacheDir().getPath());
+			Application app = (Application) PermissionAcitivity.this.getApplicationContext();
+			app.mFaceDB = mFaceDB;
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					Application app = (Application) PermissionAcitivity.this.getApplicationContext();
-					app.mFaceDB.loadFaces();
+					mFaceDB.loadFaces();
 					PermissionAcitivity.this.runOnUiThread(new Runnable() {
 						@Override
 						public void run() {

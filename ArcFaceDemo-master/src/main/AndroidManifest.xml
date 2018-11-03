@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.arcsoft.sdk_demo"
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    package="com.arcsoft.sdk_demo"
           xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- camera -->
     <uses-permission android:name="android.permission.CAMERA" />
@@ -7,25 +8,32 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <!-- wifi internet -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- phone state internet -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name="com.arcsoft.sdk_demo.Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:theme="@android:style/Theme"
         android:supportsRtl="true">
-        <activity android:name="com.arcsoft.sdk_demo.PermissionAcitivity">
+        <activity android:name="com.arcsoft.sdk_demo.PermissionAcitivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.arcsoft.sdk_demo.RegisterActivity">
+        <activity android:name="com.arcsoft.sdk_demo.RegisterActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-        <activity android:name="com.arcsoft.sdk_demo.DetecterActivity">
+        <activity android:name="com.arcsoft.sdk_demo.DetecterActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-        <activity android:name="com.arcsoft.sdk_demo.MainActivity">
+        <activity android:name="com.arcsoft.sdk_demo.MainActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
     </application>
 

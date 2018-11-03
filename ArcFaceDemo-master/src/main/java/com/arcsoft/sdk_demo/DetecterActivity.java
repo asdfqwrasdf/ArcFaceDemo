@@ -1,6 +1,5 @@
 package com.arcsoft.sdk_demo;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -8,8 +7,10 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.media.FaceDetector;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,25 +18,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.arcsoft.ageestimation.ASAE_FSDKAge;
-import com.arcsoft.ageestimation.ASAE_FSDKEngine;
-import com.arcsoft.ageestimation.ASAE_FSDKError;
-import com.arcsoft.ageestimation.ASAE_FSDKFace;
-import com.arcsoft.ageestimation.ASAE_FSDKVersion;
-import com.arcsoft.facerecognition.AFR_FSDKEngine;
-import com.arcsoft.facerecognition.AFR_FSDKError;
-import com.arcsoft.facerecognition.AFR_FSDKFace;
-import com.arcsoft.facerecognition.AFR_FSDKMatching;
-import com.arcsoft.facerecognition.AFR_FSDKVersion;
-import com.arcsoft.facetracking.AFT_FSDKEngine;
-import com.arcsoft.facetracking.AFT_FSDKError;
-import com.arcsoft.facetracking.AFT_FSDKFace;
-import com.arcsoft.facetracking.AFT_FSDKVersion;
-import com.arcsoft.genderestimation.ASGE_FSDKEngine;
-import com.arcsoft.genderestimation.ASGE_FSDKError;
-import com.arcsoft.genderestimation.ASGE_FSDKFace;
-import com.arcsoft.genderestimation.ASGE_FSDKGender;
-import com.arcsoft.genderestimation.ASGE_FSDKVersion;
+import com.arcsoft.face.AgeInfo;
+import com.arcsoft.face.FaceEngine;
+import com.arcsoft.face.FaceFeature;
+import com.arcsoft.face.FaceInfo;
+import com.arcsoft.face.FaceSimilar;
+import com.arcsoft.face.GenderInfo;
+import com.arcsoft.face.VersionInfo;
 import com.guo.android_extend.GLES2Render;
 import com.guo.android_extend.java.AbsLoop;
 import com.guo.android_extend.java.ExtByteArrayOutputStream;
@@ -49,11 +38,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.arcsoft.face.FaceEngine.ASF_AGE;
+import static com.arcsoft.face.FaceEngine.ASF_GENDER;
+
 /**
  * Created by gqj3375 on 2017/4/28.
  */
 
-public class DetecterActivity extends Activity implements OnCameraListener, View.OnTouchListener, Camera.AutoFocusCallback, View.OnClickListener {
+public class DetecterActivity extends AppCompatActivity implements OnCameraListener, View.OnTouchListener, Camera.AutoFocusCallback, View.OnClickListener {
 	private final String TAG = this.getClass().getSimpleName();
 
 	private int mWidth, mHeight, mFormat;
@@ -61,22 +53,17 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 	private CameraGLSurfaceView mGLSurfaceView;
 	private Camera mCamera;
 
-	AFT_FSDKVersion version = new AFT_FSDKVersion();
-	AFT_FSDKEngine engine = new AFT_FSDKEngine();
-	ASAE_FSDKVersion mAgeVersion = new ASAE_FSDKVersion();
-	ASAE_FSDKEngine mAgeEngine = new ASAE_FSDKEngine();
-	ASGE_FSDKVersion mGenderVersion = new ASGE_FSDKVersion();
-	ASGE_FSDKEngine mGenderEngine = new ASGE_FSDKEngine();
-	List<AFT_FSDKFace> result = new ArrayList<>();
-	List<ASAE_FSDKAge> ages = new ArrayList<>();
-	List<ASGE_FSDKGender> genders = new ArrayList<>();
+	FaceEngine engine = new FaceEngine();
+	List<FaceInfo> result = new ArrayList<>();
+	List<AgeInfo> ages = new ArrayList<>();
+	List<GenderInfo> genders = new ArrayList<>();
 
 	int mCameraID;
 	int mCameraRotate;
 	int mCameraMirror;
 	byte[] mImageNV21 = null;
 	FRAbsLoop mFRAbsLoop = null;
-	AFT_FSDKFace mAFT_FSDKFace = null;
+	FaceInfo mAFT_FSDKFace = null;
 	Handler mHandler;
 	boolean isPostted = false;
 
@@ -91,37 +78,39 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 
 	class FRAbsLoop extends AbsLoop {
 
-		AFR_FSDKVersion version = new AFR_FSDKVersion();
-		AFR_FSDKEngine engine = new AFR_FSDKEngine();
-		AFR_FSDKFace result = new AFR_FSDKFace();
+		FaceEngine engine = new FaceEngine();
+		FaceFeature result = new FaceFeature();
 		List<FaceDB.FaceRegist> mResgist = ((Application)DetecterActivity.this.getApplicationContext()).mFaceDB.mRegister;
-		List<ASAE_FSDKFace> face1 = new ArrayList<>();
-		List<ASGE_FSDKFace> face2 = new ArrayList<>();
+		List<FaceInfo> face1 = new ArrayList<>();
+		List<FaceInfo> face2 = new ArrayList<>();
 		
 		@Override
 		public void setup() {
-			AFR_FSDKError error = engine.AFR_FSDK_InitialEngine(FaceDB.appid, FaceDB.fr_key);
-			Log.d(TAG, "AFR_FSDK_InitialEngine = " + error.getCode());
-			error = engine.AFR_FSDK_GetVersion(version);
-			Log.d(TAG, "FR=" + version.toString() + "," + error.getCode()); //(210, 178 - 478, 446), degree = 1　780, 2208 - 1942, 3370
+			VersionInfo version = new VersionInfo();
+			int error = engine.active(DetecterActivity.this, FaceDB.appid, FaceDB.sdk_key);
+			Log.d(TAG, "active = " + error);
+			error = engine.init(DetecterActivity.this, FaceEngine.ASF_DETECT_MODE_VIDEO, FaceEngine.ASF_OP_0_HIGHER_EXT, 16, 1,
+					FaceEngine.ASF_FACE_RECOGNITION|FaceEngine.ASF_AGE|FaceEngine.ASF_GENDER);
+			Log.d(TAG, "init = " + error);
+			error = engine.getVersion(version);
+			Log.d(TAG, "getVersion=" + version.toString() + "," + error); //(210, 178 - 478, 446), degree = 1　780, 2208 - 1942, 3370
 		}
 
 		@Override
 		public void loop() {
 			if (mImageNV21 != null) {
 				final int rotate = mCameraRotate;
-
 				long time = System.currentTimeMillis();
-				AFR_FSDKError error = engine.AFR_FSDK_ExtractFRFeature(mImageNV21, mWidth, mHeight, AFR_FSDKEngine.CP_PAF_NV21, mAFT_FSDKFace.getRect(), mAFT_FSDKFace.getDegree(), result);
-				Log.d(TAG, "AFR_FSDK_ExtractFRFeature cost :" + (System.currentTimeMillis() - time) + "ms");
-				Log.d(TAG, "Face=" + result.getFeatureData()[0] + "," + result.getFeatureData()[1] + "," + result.getFeatureData()[2] + "," + error.getCode());
-				AFR_FSDKMatching score = new AFR_FSDKMatching();
+				int error = engine.extractFaceFeature(mImageNV21, mWidth, mHeight, FaceEngine.CP_PAF_NV21, mAFT_FSDKFace, result);
+				Log.d(TAG, "AFR_FSDK_ExtractFRFeature cost :" + (System.currentTimeMillis() - time) + "ms,err=" + error);
+				Log.d(TAG, "Face=" + result.getFeatureData()[0] + "," + result.getFeatureData()[1] + "," + result.getFeatureData()[2] + "," + error);
+				FaceSimilar score = new FaceSimilar();
 				float max = 0.0f;
 				String name = null;
 				for (FaceDB.FaceRegist fr : mResgist) {
-					for (AFR_FSDKFace face : fr.mFaceList.values()) {
-						error = engine.AFR_FSDK_FacePairMatching(result, face, score);
-						Log.d(TAG,  "Score:" + score.getScore() + ", AFR_FSDK_FacePairMatching=" + error.getCode());
+					for (FaceFeature face : fr.mFaceList.values()) {
+						error = engine.compareFaceFeature(result, face, score);
+						Log.d(TAG,  "Score:" + score.getScore() + ", AFR_FSDK_FacePairMatching=" + error);
 						if (max < score.getScore()) {
 							max = score.getScore();
 							name = fr.mName;
@@ -131,16 +120,26 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 
 				//age & gender
 				face1.clear();
-				face2.clear();
-				face1.add(new ASAE_FSDKFace(mAFT_FSDKFace.getRect(), mAFT_FSDKFace.getDegree()));
-				face2.add(new ASGE_FSDKFace(mAFT_FSDKFace.getRect(), mAFT_FSDKFace.getDegree()));
-				ASAE_FSDKError error1 = mAgeEngine.ASAE_FSDK_AgeEstimation_Image(mImageNV21, mWidth, mHeight, AFT_FSDKEngine.CP_PAF_NV21, face1, ages);
-				ASGE_FSDKError error2 = mGenderEngine.ASGE_FSDK_GenderEstimation_Image(mImageNV21, mWidth, mHeight, AFT_FSDKEngine.CP_PAF_NV21, face2, genders);
-				Log.d(TAG, "ASAE_FSDK_AgeEstimation_Image:" + error1.getCode() + ",ASGE_FSDK_GenderEstimation_Image:" + error2.getCode());
-				Log.d(TAG, "age:" + ages.get(0).getAge() + ",gender:" + genders.get(0).getGender());
-				final String age = ages.get(0).getAge() == 0 ? "年龄未知" : ages.get(0).getAge() + "岁";
-				final String gender = genders.get(0).getGender() == -1 ? "性别未知" : (genders.get(0).getGender() == 0 ? "男" : "女");
-				
+				face1.add(new FaceInfo(mAFT_FSDKFace));
+				int error1 = engine.process(mImageNV21, mWidth, mHeight, FaceEngine.CP_PAF_NV21, face1, ASF_AGE|ASF_GENDER);
+				Log.d(TAG, "process:" + error1);
+				error1 = engine.getAge(ages);
+				Log.d(TAG, "getAge:" + error1);
+				int error2 = engine.getGender(genders);
+				Log.d(TAG, "getGender:" + error2);
+				//Log.d(TAG, "age:" + ages.get(0).getAge() + ",gender:" + genders.get(0).getGender());
+				final String age, gender;
+				if (error1 == 0) {
+					age = ages.get(0).getAge() == 0 ? "年龄未知" : ages.get(0).getAge() + "岁";
+				} else {
+					age = "";
+				}
+				if (error2 == 0) {
+					gender = genders.get(0).getGender() == -1 ? "性别未知" : (genders.get(0).getGender() == 0 ? "男" : "女");
+				} else {
+					gender = "";
+				}
+
 				//crop
 				byte[] data = mImageNV21;
 				YuvImage yuv = new YuvImage(data, ImageFormat.NV21, mWidth, mHeight, null);
@@ -199,8 +198,8 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 
 		@Override
 		public void over() {
-			AFR_FSDKError error = engine.AFR_FSDK_UninitialEngine();
-			Log.d(TAG, "AFR_FSDK_UninitialEngine : " + error.getCode());
+			int error = engine.unInit();
+			Log.d(TAG, "unInit : " + error);
 		}
 	}
 
@@ -243,20 +242,10 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 		mImageButton = (ImageButton) findViewById(R.id.imageButton);
 		mImageButton.setOnClickListener(this);
 
-		AFT_FSDKError err = engine.AFT_FSDK_InitialFaceEngine(FaceDB.appid, FaceDB.ft_key, AFT_FSDKEngine.AFT_OPF_0_HIGHER_EXT, 16, 5);
-		Log.d(TAG, "AFT_FSDK_InitialFaceEngine =" + err.getCode());
-		err = engine.AFT_FSDK_GetVersion(version);
-		Log.d(TAG, "AFT_FSDK_GetVersion:" + version.toString() + "," + err.getCode());
-
-		ASAE_FSDKError error = mAgeEngine.ASAE_FSDK_InitAgeEngine(FaceDB.appid, FaceDB.age_key);
-		Log.d(TAG, "ASAE_FSDK_InitAgeEngine =" + error.getCode());
-		error = mAgeEngine.ASAE_FSDK_GetVersion(mAgeVersion);
-		Log.d(TAG, "ASAE_FSDK_GetVersion:" + mAgeVersion.toString() + "," + error.getCode());
-
-		ASGE_FSDKError error1 = mGenderEngine.ASGE_FSDK_InitgGenderEngine(FaceDB.appid, FaceDB.gender_key);
-		Log.d(TAG, "ASGE_FSDK_InitgGenderEngine =" + error1.getCode());
-		error1 = mGenderEngine.ASGE_FSDK_GetVersion(mGenderVersion);
-		Log.d(TAG, "ASGE_FSDK_GetVersion:" + mGenderVersion.toString() + "," + error1.getCode());
+		int err = engine.active(DetecterActivity.this, FaceDB.appid, FaceDB.sdk_key);
+		Log.d(TAG, "active =" + err);
+		err = engine.init(DetecterActivity.this, FaceEngine.ASF_DETECT_MODE_VIDEO, FaceEngine.ASF_OP_0_HIGHER_EXT, 16, 1, FaceEngine.ASF_FACE_DETECT );
+		Log.d(TAG, "init =" + err);
 
 		mFRAbsLoop = new FRAbsLoop();
 		mFRAbsLoop.start();
@@ -270,14 +259,8 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		mFRAbsLoop.shutdown();
-		AFT_FSDKError err = engine.AFT_FSDK_UninitialFaceEngine();
-		Log.d(TAG, "AFT_FSDK_UninitialFaceEngine =" + err.getCode());
-
-		ASAE_FSDKError err1 = mAgeEngine.ASAE_FSDK_UninitAgeEngine();
-		Log.d(TAG, "ASAE_FSDK_UninitAgeEngine =" + err1.getCode());
-
-		ASGE_FSDKError err2 = mGenderEngine.ASGE_FSDK_UninitGenderEngine();
-		Log.d(TAG, "ASGE_FSDK_UninitGenderEngine =" + err2.getCode());
+		int err = engine.unInit();
+		Log.d(TAG, "unInit =" + err);
 	}
 
 	@Override
@@ -333,10 +316,10 @@ public class DetecterActivity extends Activity implements OnCameraListener, View
 
 	@Override
 	public Object onPreview(byte[] data, int width, int height, int format, long timestamp) {
-		AFT_FSDKError err = engine.AFT_FSDK_FaceFeatureDetect(data, width, height, AFT_FSDKEngine.CP_PAF_NV21, result);
-		Log.d(TAG, "AFT_FSDK_FaceFeatureDetect =" + err.getCode());
+		int err = engine.detectFaces(data, width, height, FaceEngine.CP_PAF_NV21, result);
+		Log.d(TAG, "AFT_FSDK_FaceFeatureDetect =" + err);
 		Log.d(TAG, "Face=" + result.size());
-		for (AFT_FSDKFace face : result) {
+		for (FaceInfo face : result) {
 			Log.d(TAG, "Face:" + face.toString());
 		}
 		if (mImageNV21 == null) {
