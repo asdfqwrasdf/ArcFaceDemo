@@ -6,7 +6,7 @@ Free SDK demo
     git clone https://github.com/asdfqwrasdf/ArcFaceDemo.git 或者直接下载压缩包
  
  2. 前往[官网](http://www.arcsoft.com.cn/ai/arcface.html)申请appid和sdkkey。  
-    **注意：当前版本请下载1.2版本的SDK，2.0版本暂不支持**    
+    **注意：master版本请下载1.2版本的SDK，dev_v2.0版本请下载2.0版本SDK**    
     修改 ArcFaceDemo-master\src\main\java\com\arcsoft\sdk_demo\FaceDB.java 下面的对应的值:    
    
     ```java    
