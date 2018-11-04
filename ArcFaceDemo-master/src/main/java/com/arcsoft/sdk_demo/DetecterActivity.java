@@ -7,7 +7,6 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
-import android.media.FaceDetector;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -139,12 +138,16 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 				} else {
 					gender = "";
 				}
-
+				Rect corp = new Rect();
+				corp.left = Math.max(0, mAFT_FSDKFace.getRect().left);
+				corp.top = Math.max(0, mAFT_FSDKFace.getRect().top);
+				corp.right = Math.min(mWidth, mAFT_FSDKFace.getRect().right);
+				corp.bottom = Math.min(mHeight, mAFT_FSDKFace.getRect().bottom);
 				//crop
 				byte[] data = mImageNV21;
 				YuvImage yuv = new YuvImage(data, ImageFormat.NV21, mWidth, mHeight, null);
 				ExtByteArrayOutputStream ops = new ExtByteArrayOutputStream();
-				yuv.compressToJpeg(mAFT_FSDKFace.getRect(), 80, ops);
+				yuv.compressToJpeg(corp, 80, ops);
 				final Bitmap bmp = BitmapFactory.decodeByteArray(ops.getByteArray(), 0, ops.getByteArray().length);
 				try {
 					ops.close();
