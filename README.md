@@ -6,18 +6,16 @@ Free SDK demo
     git clone https://github.com/asdfqwrasdf/ArcFaceDemo.git 或者直接下载压缩包
  
  2. 前往[官网](http://www.arcsoft.com.cn/ai/arcface.html)申请appid和sdkkey。  
-    **注意：当前版本请下载1.2版本的SDK，2.0版本暂不支持**    
+    **注意：当前版本请下载ArcFace2.0版本**    
     修改 ArcFaceDemo-master\src\main\java\com\arcsoft\sdk_demo\FaceDB.java 下面的对应的值:    
    
     ```java    
     public static String appid = "xxxx"; 		
-    public static String fd_key = "xxxx";    
-    public static String ft_key = "xxxx";
-    public static String fr_key = "xxxx";
+    public static String sdk_key = "xxxx";    
     ```
 3. 下载sdk包之后，解压各个包里libs中的文件到 ArcFaceDemo-master\libs 下，同名so直接覆盖。
 
-4. Android Studio3.0 中直接打开或者导入Project,编译运行即可。    
+4. Android Studio3.x 中直接打开或者导入Project,编译运行即可。    
 
 > demo如何使用?    
 
@@ -49,16 +47,16 @@ Free SDK demo
   
 ---------------
 > FAQ
-1. Gradle 错误提示 Error:Failed to find target with hash string 'android-24'.......    
+1. Gradle 错误提示 Error:Failed to find target with hash string 'android-26'.......    
  一般Android Studio 窗口会有个链接(Install missing platform(s) and sync project)    
- 点击下载更新 android-24 即可解决（其他版本没测试过，建议不要随意更改）。    
+ 点击下载更新 android-26 即可解决（其他版本没测试过，建议不要随意更改）。    
 	
 2. 加载图片注册时Crash.    
  NV21格式限制高度和宽度不能同时为奇数，demo已经对这个做了保护。    
  如有发生，请提供图像尺寸和发生时的全部log。    
     
 3. 年龄和性别检测结果准确度不够.    
- Video的接口性能优先，Image的接口准确度优先。    
+ 更改初始化设置Image模式准确度更高，但性能更慢一些。    
     
 4. com.guo.android_extend:android-extend 找不到依赖.    
  此第三方库[android_extend](https://github.com/gqjjqg/android-extend) 用来简化camera调用，提供简单的工具方便demo开发。 
