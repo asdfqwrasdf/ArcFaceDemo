@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.arcsoft.face.AgeInfo;
+import com.arcsoft.face.ErrorInfo;
+import com.arcsoft.face.Face3DAngle;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.FaceInfo;
@@ -39,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.arcsoft.face.FaceEngine.ASF_AGE;
+import static com.arcsoft.face.FaceEngine.ASF_FACE3DANGLE;
+import static com.arcsoft.face.FaceEngine.ASF_FACE_RECOGNITION;
 import static com.arcsoft.face.FaceEngine.ASF_GENDER;
 
 /**
@@ -57,6 +61,7 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 	List<FaceInfo> result = new ArrayList<>();
 	List<AgeInfo> ages = new ArrayList<>();
 	List<GenderInfo> genders = new ArrayList<>();
+	List<Face3DAngle> angles = new ArrayList<>();
 
 	int mCameraID;
 	int mCameraRotate;
@@ -90,7 +95,7 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 			int error = engine.active(DetecterActivity.this, FaceDB.appid, FaceDB.sdk_key);
 			Log.d(TAG, "active = " + error);
 			error = engine.init(DetecterActivity.this, FaceEngine.ASF_DETECT_MODE_VIDEO, FaceEngine.ASF_OP_0_HIGHER_EXT, 16, 1,
-					FaceEngine.ASF_FACE_RECOGNITION|FaceEngine.ASF_AGE|FaceEngine.ASF_GENDER);
+					ASF_FACE_RECOGNITION|ASF_AGE|ASF_GENDER|ASF_FACE3DANGLE);
 			Log.d(TAG, "init = " + error);
 			error = engine.getVersion(version);
 			Log.d(TAG, "getVersion=" + version.toString() + "," + error); //(210, 178 - 478, 446), degree = 1　780, 2208 - 1942, 3370
@@ -140,11 +145,32 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 					gender = "";
 				}
 
+				//3D FACE
+				face1.clear();
+				face1.add(new FaceInfo(mAFT_FSDKFace));
+				int error3 = engine.process(mImageNV21, mWidth, mHeight, FaceEngine.CP_PAF_NV21, face1, ASF_FACE3DANGLE);
+				Log.d(TAG, "process:" + error3);
+				int error4 = engine.getFace3DAngle(angles);
+				Log.d(TAG, "getFace3DAngle:" + error4);
+				//Log.d(TAG, "age:" + ages.get(0).getAge() + ",gender:" + genders.get(0).getGender());
+				final String angle;
+				if (error4 == 0) {
+					angle = angles.isEmpty() ? "角度未知" : "角度：Roll="+ angles.get(0).getRoll()+ ",\r\nYaw=" + angles.get(0).getYaw()
+							+ ",\r\nPitch="+angles.get(0).getPitch() + " \r\n" ;
+				} else {
+					angle = "";
+				}
+
 				//crop
 				byte[] data = mImageNV21;
+				Rect rect = new Rect(mAFT_FSDKFace.getRect());
+				rect.left = Math.max(rect.left, 0);
+				rect.top = Math.max(rect.top, 0);
+				rect.right = Math.min(rect.right, mWidth);
+				rect.bottom = Math.min(rect.bottom, mHeight);
 				YuvImage yuv = new YuvImage(data, ImageFormat.NV21, mWidth, mHeight, null);
 				ExtByteArrayOutputStream ops = new ExtByteArrayOutputStream();
-				yuv.compressToJpeg(mAFT_FSDKFace.getRect(), 80, ops);
+				yuv.compressToJpeg(rect, 80, ops);
 				final Bitmap bmp = BitmapFactory.decodeByteArray(ops.getByteArray(), 0, ops.getByteArray().length);
 				try {
 					ops.close();
@@ -180,7 +206,7 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 						public void run() {
 							mTextView.setAlpha(1.0f);
 							mTextView1.setVisibility(View.VISIBLE);
-							mTextView1.setText( gender + "," + age);
+							mTextView1.setText( gender + "," + age +",\r\n"+angle);
 							mTextView1.setTextColor(Color.RED);
 							mTextView.setText(mNameShow);
 							mTextView.setTextColor(Color.RED);
