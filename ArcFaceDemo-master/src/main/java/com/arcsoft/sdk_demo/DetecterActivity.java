@@ -7,7 +7,6 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
-import android.media.FaceDetector;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.arcsoft.face.AgeInfo;
-import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.Face3DAngle;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.FaceFeature;
@@ -156,21 +154,21 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 				final String angle;
 				if (error4 == 0) {
 					angle = angles.isEmpty() ? "角度未知" : "角度：Roll="+ angles.get(0).getRoll()+ ",\r\nYaw=" + angles.get(0).getYaw()
-							+ ",\r\nPitch="+angles.get(0).getPitch() + " \r\n" ;
+										+ ",\r\nPitch="+angles.get(0).getPitch() + " \r\n" ;
 				} else {
 					angle = "";
 				}
 
+				Rect corp = new Rect();
+				corp.left = Math.max(0, mAFT_FSDKFace.getRect().left);
+				corp.top = Math.max(0, mAFT_FSDKFace.getRect().top);
+				corp.right = Math.min(mWidth, mAFT_FSDKFace.getRect().right);
+				corp.bottom = Math.min(mHeight, mAFT_FSDKFace.getRect().bottom);
 				//crop
 				byte[] data = mImageNV21;
-				Rect rect = new Rect(mAFT_FSDKFace.getRect());
-				rect.left = Math.max(rect.left, 0);
-				rect.top = Math.max(rect.top, 0);
-				rect.right = Math.min(rect.right, mWidth);
-				rect.bottom = Math.min(rect.bottom, mHeight);
 				YuvImage yuv = new YuvImage(data, ImageFormat.NV21, mWidth, mHeight, null);
 				ExtByteArrayOutputStream ops = new ExtByteArrayOutputStream();
-				yuv.compressToJpeg(rect, 80, ops);
+				yuv.compressToJpeg(corp, 80, ops);
 				final Bitmap bmp = BitmapFactory.decodeByteArray(ops.getByteArray(), 0, ops.getByteArray().length);
 				try {
 					ops.close();

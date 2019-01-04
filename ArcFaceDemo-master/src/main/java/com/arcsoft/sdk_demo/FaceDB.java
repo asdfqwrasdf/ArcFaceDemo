@@ -29,8 +29,8 @@ import java.util.Map;
 public class FaceDB {
 	private final String TAG = this.getClass().toString();
 
-	public static String appid = "7gmAxzu82nrqgviDUnQKSbcQkMmgJeU57gh137fFhcyQ";
-	public static String sdk_key = "AhC7DUp2KHLS9rNhUZ8GVBLJ9UqC3q8oBAsYsPgkNqRt";
+	public static String appid = "xxx";
+	public static String sdk_key = "xxx";
 
 	String mDBPath;
 	List<FaceRegist> mRegister;
