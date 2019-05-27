@@ -23,6 +23,7 @@ import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.GenderInfo;
+import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
 import com.guo.android_extend.GLES2Render;
 import com.guo.android_extend.java.AbsLoop;
@@ -56,6 +57,7 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 	List<FaceInfo> result = new ArrayList<>();
 	List<AgeInfo> ages = new ArrayList<>();
 	List<GenderInfo> genders = new ArrayList<>();
+	List<LivenessInfo> liveness = new ArrayList<>();
 
 	int mCameraID;
 	int mCameraRotate;
@@ -89,7 +91,7 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 			int error = engine.active(DetecterActivity.this, FaceDB.appid, FaceDB.sdk_key);
 			Log.d(TAG, "active = " + error);
 			error = engine.init(DetecterActivity.this, FaceEngine.ASF_DETECT_MODE_VIDEO, FaceEngine.ASF_OP_0_HIGHER_EXT, 16, 1,
-					FaceEngine.ASF_FACE_RECOGNITION|FaceEngine.ASF_AGE|FaceEngine.ASF_GENDER);
+					FaceEngine.ASF_FACE_RECOGNITION|FaceEngine.ASF_AGE|FaceEngine.ASF_GENDER|FaceEngine.ASF_LIVENESS);
 			Log.d(TAG, "init = " + error);
 			error = engine.getVersion(version);
 			Log.d(TAG, "getVersion=" + version.toString() + "," + error); //(210, 178 - 478, 446), degree = 1　780, 2208 - 1942, 3370
@@ -120,23 +122,32 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 				//age & gender
 				face1.clear();
 				face1.add(new FaceInfo(mAFT_FSDKFace));
-				int error1 = engine.process(mImageNV21, mWidth, mHeight, FaceEngine.CP_PAF_NV21, face1, ASF_AGE|ASF_GENDER);
+				int error1 = engine.process(mImageNV21, mWidth, mHeight, FaceEngine.CP_PAF_NV21, face1, ASF_AGE|ASF_GENDER|FaceEngine.ASF_LIVENESS);
 				Log.d(TAG, "process:" + error1);
 				error1 = engine.getAge(ages);
 				Log.d(TAG, "getAge:" + error1);
 				int error2 = engine.getGender(genders);
 				Log.d(TAG, "getGender:" + error2);
 				//Log.d(TAG, "age:" + ages.get(0).getAge() + ",gender:" + genders.get(0).getGender());
-				final String age, gender;
+				int error3 = engine.getLiveness(liveness);
+				Log.d(TAG, "getLiveness:" + error3);
+				final String age, gender, live;
 				if (error1 == 0) {
 					age = ages.get(0).getAge() == 0 ? "年龄未知" : ages.get(0).getAge() + "岁";
 				} else {
-					age = "";
+					age = "age error:"+error;
 				}
 				if (error2 == 0) {
 					gender = genders.get(0).getGender() == -1 ? "性别未知" : (genders.get(0).getGender() == 0 ? "男" : "女");
 				} else {
-					gender = "";
+					gender = "gender error:"+error2;
+				}
+				if (error3 == 0) { // 、 、UNKNOWN 、FACE_NUM_MORE_THAN_ONE
+					live = liveness.get(0).getLiveness() == LivenessInfo.NOT_ALIVE ? "非活体" :
+							(liveness.get(0).getLiveness() == LivenessInfo.ALIVE ? "活体" :
+							(liveness.get(0).getLiveness() == LivenessInfo.FACE_NUM_MORE_THAN_ONE ? "超出限制": "未知错误"));
+				} else {
+					live = "liveness error:"+error3;
 				}
 				Rect corp = new Rect();
 				corp.left = Math.max(0, mAFT_FSDKFace.getRect().left);
@@ -168,8 +179,11 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 							mTextView.setText(mNameShow);
 							mTextView.setTextColor(Color.RED);
 							mTextView1.setVisibility(View.VISIBLE);
-							mTextView1.setText("置信度：" + (float)((int)(max_score * 1000)) / 1000.0);
+							mTextView1.setText("置信度：" + (float)((int)(max_score * 1000)) / 1000.0  + "活体检测:" + live);
 							mTextView1.setTextColor(Color.RED);
+							mTextView2.setVisibility(View.VISIBLE);
+							mTextView2.setText("活体检测:" + live);
+							mTextView2.setTextColor(Color.RED);
 							mImageView.setRotation(rotate);
 							mImageView.setScaleY(-mCameraMirror);
 							mImageView.setImageAlpha(255);
@@ -185,6 +199,9 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 							mTextView1.setVisibility(View.VISIBLE);
 							mTextView1.setText( gender + "," + age);
 							mTextView1.setTextColor(Color.RED);
+							mTextView2.setVisibility(View.VISIBLE);
+							mTextView2.setText("活体检测:" + live);
+							mTextView2.setTextColor(Color.RED);
 							mTextView.setText(mNameShow);
 							mTextView.setTextColor(Color.RED);
 							mImageView.setImageAlpha(255);
@@ -208,6 +225,7 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 
 	private TextView mTextView;
 	private TextView mTextView1;
+	private TextView mTextView2;
 	private ImageView mImageView;
 	private ImageButton mImageButton;
 
@@ -240,6 +258,8 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 		mTextView.setText("");
 		mTextView1 = (TextView) findViewById(R.id.textView1);
 		mTextView1.setText("");
+		mTextView2 = (TextView) findViewById(R.id.textView2);
+		mTextView2.setText("");
 
 		mImageView = (ImageView) findViewById(R.id.imageView);
 		mImageButton = (ImageButton) findViewById(R.id.imageButton);
