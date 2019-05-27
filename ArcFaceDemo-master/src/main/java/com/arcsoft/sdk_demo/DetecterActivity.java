@@ -24,7 +24,6 @@ import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.FaceInfo;
 import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.GenderInfo;
-import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
 import com.guo.android_extend.GLES2Render;
 import com.guo.android_extend.java.AbsLoop;
@@ -59,7 +58,6 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 	List<FaceInfo> result = new ArrayList<>();
 	List<AgeInfo> ages = new ArrayList<>();
 	List<GenderInfo> genders = new ArrayList<>();
-	List<LivenessInfo> liveness = new ArrayList<>();
 	List<Face3DAngle> angles = new ArrayList<>();
 
 	int mCameraID;
@@ -94,7 +92,7 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 			int error = engine.active(DetecterActivity.this, FaceDB.appid, FaceDB.sdk_key);
 			Log.d(TAG, "active = " + error);
 			error = engine.init(DetecterActivity.this, FaceEngine.ASF_DETECT_MODE_VIDEO, FaceEngine.ASF_OP_0_HIGHER_EXT, 16, 1,
-				FaceEngine.ASF_FACE_RECOGNITION|FaceEngine.ASF_AGE|FaceEngine.ASF_GENDER|FaceEngine.ASF_LIVENESS|FaceEngine.ASF_FACE3DANGLE);
+				FaceEngine.ASF_FACE_RECOGNITION|FaceEngine.ASF_AGE|FaceEngine.ASF_GENDER|FaceEngine.ASF_FACE3DANGLE);
 			Log.d(TAG, "init = " + error);
 			error = engine.getVersion(version);
 			Log.d(TAG, "getVersion=" + version.toString() + "," + error); //(210, 178 - 478, 446), degree = 1　780, 2208 - 1942, 3370
@@ -125,15 +123,12 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 				//age & gender
 				face1.clear();
 				face1.add(new FaceInfo(mAFT_FSDKFace));
-				int error1 = engine.process(mImageNV21, mWidth, mHeight, FaceEngine.CP_PAF_NV21, face1, ASF_AGE|ASF_GENDER|FaceEngine.ASF_LIVENESS);
+				int error1 = engine.process(mImageNV21, mWidth, mHeight, FaceEngine.CP_PAF_NV21, face1, ASF_AGE|ASF_GENDER);
 				Log.d(TAG, "process:" + error1);
 				error1 = engine.getAge(ages);
 				Log.d(TAG, "getAge:" + error1);
 				int error2 = engine.getGender(genders);
 				Log.d(TAG, "getGender:" + error2);
-				//Log.d(TAG, "age:" + ages.get(0).getAge() + ",gender:" + genders.get(0).getGender());
-				int error3 = engine.getLiveness(liveness);
-				Log.d(TAG, "getLiveness:" + error3);
 				final String age, gender, live;
 				if (error1 == 0) {
 					age = ages.get(0).getAge() == 0 ? "年龄未知" : ages.get(0).getAge() + "岁";
@@ -145,25 +140,17 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 				} else {
 					gender = "gender error:"+error2;
 				}
-				if (error3 == 0) {
-					live = liveness.get(0).getLiveness() == LivenessInfo.NOT_ALIVE ? "非活体" :
-							(liveness.get(0).getLiveness() == LivenessInfo.ALIVE ? "活体" :
-							(liveness.get(0).getLiveness() == LivenessInfo.FACE_NUM_MORE_THAN_ONE ? "超出限制": "未知错误"));
-				} else {
-					live = "liveness error:"+error3;
-				}
-
 				//3D FACE
 				face1.clear();
 				face1.add(new FaceInfo(mAFT_FSDKFace));
-				error3 = engine.process(mImageNV21, mWidth, mHeight, FaceEngine.CP_PAF_NV21, face1, ASF_FACE3DANGLE);
+				int error3 = engine.process(mImageNV21, mWidth, mHeight, FaceEngine.CP_PAF_NV21, face1, ASF_FACE3DANGLE);
 				Log.d(TAG, "process:" + error3);
 				int error4 = engine.getFace3DAngle(angles);
 				Log.d(TAG, "getFace3DAngle:" + error4);
 				//Log.d(TAG, "age:" + ages.get(0).getAge() + ",gender:" + genders.get(0).getGender());
 				final String angle;
 				if (error4 == 0) {
-					angle = angles.isEmpty() ? "角度未知" : "角度：Roll="+ angles.get(0).getRoll()+ ",\r\nYaw=" + angles.get(0).getYaw()
+					angle = angles.isEmpty() ? "角度未知" : "Roll="+ angles.get(0).getRoll()+ ",\r\nYaw=" + angles.get(0).getYaw()
 										+ ",\r\nPitch="+angles.get(0).getPitch() + " \r\n" ;
 				} else {
 					angle = "Face3DAngle error:"+error4;
@@ -202,7 +189,7 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 							mTextView1.setText("置信度：" + (float)((int)(max_score * 1000)) / 1000.0);
 							mTextView1.setTextColor(Color.RED);
 							mTextView2.setVisibility(View.VISIBLE);
-							mTextView2.setText("活体检测:" + live);
+							mTextView2.setText("人脸角度:" + angle);
 							mTextView2.setTextColor(Color.RED);
 							mImageView.setRotation(rotate);
 							mImageView.setScaleY(-mCameraMirror);
@@ -217,10 +204,10 @@ public class DetecterActivity extends AppCompatActivity implements OnCameraListe
 						public void run() {
 							mTextView.setAlpha(1.0f);
 							mTextView1.setVisibility(View.VISIBLE);
-							mTextView1.setText( gender + "," + age +",\r\n"+angle);
+							mTextView1.setText( gender + "," + age);
 							mTextView1.setTextColor(Color.RED);
 							mTextView2.setVisibility(View.VISIBLE);
-							mTextView2.setText("活体检测:" + live);
+							mTextView2.setText("人脸角度:" + angle);
 							mTextView2.setTextColor(Color.RED);
 							mTextView.setText(mNameShow);
 							mTextView.setTextColor(Color.RED);
